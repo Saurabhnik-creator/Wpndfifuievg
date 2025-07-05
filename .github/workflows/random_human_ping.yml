@@ -1,0 +1,50 @@
+name: R with 8 Runs Per Hour
+
+on:
+  schedule:
+    - cron: '* * * * *' # runs every minute
+  workflow_dispatch:
+
+jobs:
+  human_ping:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Random skip to limit ~8 runs/hour
+        run: |
+          # ~8/60 chance = ~13% chance to run, adjust to your exact target
+          if [ $((RANDOM % 8)) -ne 0 ]; then
+            echo "Skipping this minute to limit total runs";
+            exit 0;
+          fi
+
+      - name: Random sleep 0-45s (avoid same second calls)
+        run: sleep $((RANDOM % 45))
+
+      - name: Human-like Random Ping Call
+        run: |
+          UA_LIST=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"
+            "Mozilla/5.0 (iPhone; CPU iPhone OS 14_6 like Mac OS X)"
+            "Mozilla/5.0 (Linux; Android 10; SM-G973F)"
+          )
+          UA=${UA_LIST[$RANDOM % ${#UA_LIST[@]}]}
+
+          EP_LIST=(
+            "https://futures-screener-k43f.onrender.com/health"
+            "https://futures-screener-k43f.onrender.com/health1"
+            "https://futures-screener-k43f.onrender.com/health2"
+          )
+          EP=${EP_LIST[$RANDOM % ${#EP_LIST[@]}]}
+
+          HEADER_LIST=(
+            "-H 'User-Agent: $UA'"
+            "-H 'User-Agent: $UA' -H 'Accept-Language: en-US,en;q=0.9'"
+            "-H 'User-Agent: $UA' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8'"
+          )
+          HEADER=${HEADER_LIST[$RANDOM % ${#HEADER_LIST[@]}]}
+
+          echo "Calling $EP with headers: $HEADER"
+
+          eval curl -s $HEADER "$EP"
