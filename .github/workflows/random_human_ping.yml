@@ -13,7 +13,7 @@ jobs:
       - name: Random skip to limit ~8 runs/hour
         run: |
           # ~8/60 chance = ~13% chance to run, adjust to your exact target
-          if [ $((RANDOM % 2)) -ne 0 ]; then
+          if [ $((RANDOM % 1)) -ne 0 ]; then
             echo "Skipping this minute to limit total runs";
             exit 0;
           fi
